@@ -1,0 +1,6 @@
+{
+  "name": "Niteesh AI Sales & Marketing Command Center",
+  "description": "AI-powered Sales, Marketing, Lead Intelligence and Business Decision Assistant for Niteesh AI Growth Labs and UrbanNest Properties.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
