@@ -1,6 +1,0 @@
-# Analytics Prompt
-Analyze marketing performance across all 11 core formulas:
-CTR, CPC, CPL, Lead Conversion Rate, Qualified Lead Rate, Meeting Rate, Customer Conversion Rate, CAC, ROAS, Revenue, ROI.
-Do not invent missing variables.
-Distinguish FACT, INFERENCE, ASSUMPTION, RECOMMENDATION.
-Point out exact funnel drop-offs and stage bottlenecks.

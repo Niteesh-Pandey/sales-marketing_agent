@@ -1,7 +1,13 @@
 {
-  "name": "react-example",
-  "private": true,
-  "version": "0.0.0",
+  "name": "niteesh-ai-sales-marketing-agent",
+  "version": "1.0.0",
+  "description": "Niteesh AI Sales & Marketing Command Center - Enterprise AI Agent for CRM, Lead Scoring, Objection Handling & Marketing Analytics",
+  "author": "Niteesh Pandey <niteeshpandey9555@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Niteesh-Pandey/sales-marketing_agent.git"
+  },
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",

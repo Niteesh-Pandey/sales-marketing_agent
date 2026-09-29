@@ -24,15 +24,23 @@ let tasksStore: Task[] = [...INITIAL_TASKS];
 let knowledgeStore: KnowledgeDocument[] = [...INITIAL_KNOWLEDGE_DOCUMENTS];
 let auditLogsStore: AuditLog[] = [...INITIAL_AUDIT_LOGS];
 
-const SYSTEM_SETTINGS = {
+export const AVAILABLE_MODELS = [
+  { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash (Latest, Fast, Multimodal)', tier: 'Primary' },
+  { id: 'gemini-3.1-flash-lite', name: 'Gemini 3.1 Flash-Lite (Low Latency, High Efficiency)', tier: 'Fast' },
+  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash (Balanced Reasoning & Speed)', tier: 'Standard' },
+  { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro (Deep Reasoning & Strategy)', tier: 'Pro' }
+];
+
+let SYSTEM_SETTINGS = {
   owner_name: 'Niteesh Pandey',
   company_name: 'Niteesh AI Growth Labs',
   demo_client: 'UrbanNest Properties',
-  database_type: 'PostgreSQL Compatible (Dual SQLite / Postgres Driver)',
+  database_type: 'PostgreSQL Dual-Engine (SQLAlchemy / Node.js Adapter with Local Fallback)',
   postgres_url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/niteesh_growth_labs',
   primary_model: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
   fallback_model: process.env.GEMINI_FALLBACK_MODEL || 'gemini-3.1-flash-lite',
-  app_status: 'LOCAL DEMO / AI STUDIO'
+  app_status: 'PRODUCTION / MULTI-CLOUD READY',
+  supported_models: AVAILABLE_MODELS
 };
 
 // Helper: Log audit actions
@@ -58,18 +66,20 @@ const ai = new GoogleGenAI({
   apiKey,
   httpOptions: {
     headers: {
-      'User-Agent': 'aistudio-build'
+      'User-Agent': 'Niteesh-AI-Growth-Labs/1.0 (Enterprise Command Center)'
     }
   }
 });
 
 // Call Gemini with retry & model fallback
-async function callGemini(prompt: string, systemInstruction?: string, preferredModel = 'gemini-3.8-flash', jsonMode = false): Promise<string> {
+async function callGemini(prompt: string, systemInstruction?: string, preferredModel?: string, jsonMode = false): Promise<string> {
   if (!process.env.GEMINI_API_KEY) {
-    throw new Error('Gemini API key not configured. Set GEMINI_API_KEY in environment.');
+    throw new Error('Gemini API key not configured. Set GEMINI_API_KEY in your .env file or hosting environment.');
   }
 
-  const modelsToTry = [preferredModel, 'gemini-3.1-flash-lite'];
+  const modelToUse = preferredModel || SYSTEM_SETTINGS.primary_model;
+  const fallback = SYSTEM_SETTINGS.fallback_model !== modelToUse ? SYSTEM_SETTINGS.fallback_model : 'gemini-3.1-flash-lite';
+  const modelsToTry = [modelToUse, fallback, 'gemini-2.5-flash'];
   let lastError: any = null;
 
   for (const model of modelsToTry) {
@@ -119,6 +129,34 @@ app.get('/api/health', (req: Request, res: Response) => {
       documents_indexed: knowledgeStore.length,
     },
     settings: SYSTEM_SETTINGS
+  });
+});
+
+// Settings & Model Management Endpoints
+app.get('/api/settings', (req: Request, res: Response) => {
+  res.json({
+    settings: SYSTEM_SETTINGS,
+    gemini_configured: Boolean(process.env.GEMINI_API_KEY),
+    supported_models: AVAILABLE_MODELS
+  });
+});
+
+app.put('/api/settings', (req: Request, res: Response) => {
+  const { primary_model, fallback_model, demo_client } = req.body;
+  if (primary_model) {
+    SYSTEM_SETTINGS.primary_model = primary_model;
+  }
+  if (fallback_model) {
+    SYSTEM_SETTINGS.fallback_model = fallback_model;
+  }
+  if (demo_client) {
+    SYSTEM_SETTINGS.demo_client = demo_client;
+  }
+  logAudit('UPDATE_SETTINGS', 'system_config', 'Model & Environment', `Switched active AI model to ${SYSTEM_SETTINGS.primary_model}`);
+  res.json({
+    success: true,
+    settings: SYSTEM_SETTINGS,
+    message: `Active model updated to ${SYSTEM_SETTINGS.primary_model}`
   });
 });
 

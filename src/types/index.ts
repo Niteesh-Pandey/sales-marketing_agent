@@ -183,3 +183,21 @@ export interface ChatMessage {
     id: string;
   };
 }
+
+export interface ModelOption {
+  id: string;
+  name: string;
+  tier: string;
+}
+
+export interface SystemSettings {
+  owner_name: string;
+  company_name: string;
+  demo_client: string;
+  database_type: string;
+  postgres_url: string;
+  primary_model: string;
+  fallback_model: string;
+  app_status: string;
+  supported_models: ModelOption[];
+}

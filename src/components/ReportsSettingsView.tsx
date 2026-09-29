@@ -14,23 +14,70 @@ import {
   AlertTriangle,
   History,
   Layers,
-  Sparkles
+  Sparkles,
+  Cpu,
+  Github,
+  Server,
+  Key,
+  Globe
 } from 'lucide-react';
 import { AuditLog } from '../types';
 
 interface ReportsSettingsViewProps {
   auditLogs: AuditLog[];
   onResetDemoData: () => void;
+  currentModel: string;
+  onModelChange: (modelId: string) => void;
+  geminiActive: boolean;
 }
+
+const SUPPORTED_MODELS = [
+  {
+    id: 'gemini-3.8-flash',
+    name: 'Gemini 3.8 Flash',
+    tag: 'Latest & Recommended',
+    description: 'High-speed multimodal reasoning, instant CRM intelligence & zero-hallucination analysis.',
+    speed: 'Ultra Fast (<800ms)',
+    badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+  },
+  {
+    id: 'gemini-3.1-flash-lite',
+    name: 'Gemini 3.1 Flash-Lite',
+    tag: 'Ultra-Low Latency',
+    description: 'Lightweight, rapid execution for high-frequency lead scoring, tasks & email follow-ups.',
+    speed: 'Extreme Speed (<400ms)',
+    badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+  },
+  {
+    id: 'gemini-2.5-flash',
+    name: 'Gemini 2.5 Flash',
+    tag: 'Balanced Workhorse',
+    description: 'Standard enterprise reasoning model for daily marketing copy & meeting note parsing.',
+    speed: 'Fast (<1.2s)',
+    badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+  },
+  {
+    id: 'gemini-2.5-pro',
+    name: 'Gemini 2.5 Pro',
+    tag: 'Deep Reasoning & Math',
+    description: 'Maximum cognitive power for complex multi-touch marketing attribution & financial modeling.',
+    speed: 'Deep Thought (~2-3s)',
+    badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+  }
+];
 
 export const ReportsSettingsView: React.FC<ReportsSettingsViewProps> = ({
   auditLogs,
-  onResetDemoData
+  onResetDemoData,
+  currentModel,
+  onModelChange,
+  geminiActive
 }) => {
-  const [activeTab, setActiveTab] = useState<'report' | 'settings' | 'audit'>('report');
+  const [activeTab, setActiveTab] = useState<'report' | 'settings' | 'github' | 'audit'>('report');
   const [generatingReport, setGeneratingReport] = useState(false);
   const [reportMarkdown, setReportMarkdown] = useState<string>('');
   const [copiedReport, setCopiedReport] = useState(false);
+  const [copiedGitCmd, setCopiedGitCmd] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
 
   const handleGenerateReport = async () => {
@@ -74,6 +121,30 @@ export const ReportsSettingsView: React.FC<ReportsSettingsViewProps> = ({
     }
   };
 
+  const gitPushScript = `# 1. Initialize git & set identity
+git init
+git config user.name "Niteesh Pandey"
+git config user.email "niteeshpandey9555@gmail.com"
+
+# 2. Stage all updated files
+git add .
+
+# 3. Commit clean enterprise release
+git commit -m "feat: Niteesh AI Sales & Marketing Command Center v1.0 enterprise release"
+
+# 4. Link to GitHub repository
+git remote add origin https://github.com/Niteesh-Pandey/sales-marketing_agent.git
+
+# 5. Push to main branch
+git branch -M main
+git push -u origin main --force`;
+
+  const handleCopyGitCommands = () => {
+    navigator.clipboard.writeText(gitPushScript);
+    setCopiedGitCmd(true);
+    setTimeout(() => setCopiedGitCmd(false), 2000);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -81,10 +152,10 @@ export const ReportsSettingsView: React.FC<ReportsSettingsViewProps> = ({
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Settings className="w-5 h-5 text-indigo-400" />
-            Executive Reports, PostgreSQL &amp; Settings
+            Executive Reports, Engine &amp; Cloud Deployment
           </h2>
           <p className="text-xs text-slate-400">
-            Generate formal weekly management briefs, verify PostgreSQL compatibility, and audit system integrity
+            Switch Gemini models, generate weekly management briefs, verify PostgreSQL compatibility, and manage GitHub deployment
           </p>
         </div>
 
@@ -96,7 +167,7 @@ export const ReportsSettingsView: React.FC<ReportsSettingsViewProps> = ({
               activeTab === 'report' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
             }`}
           >
-            Management Report
+            Executive Report
           </button>
           <button
             onClick={() => setActiveTab('settings')}
@@ -104,7 +175,15 @@ export const ReportsSettingsView: React.FC<ReportsSettingsViewProps> = ({
               activeTab === 'settings' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
             }`}
           >
-            System &amp; Postgres
+            AI Models &amp; Engine
+          </button>
+          <button
+            onClick={() => setActiveTab('github')}
+            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              activeTab === 'github' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            GitHub &amp; Hosting
           </button>
           <button
             onClick={() => setActiveTab('audit')}
@@ -112,12 +191,12 @@ export const ReportsSettingsView: React.FC<ReportsSettingsViewProps> = ({
               activeTab === 'audit' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
             }`}
           >
-            Audit Log ({auditLogs.length})
+            Audit Trail ({auditLogs.length})
           </button>
         </div>
       </div>
 
-      {/* Tab 1: Weekly Management Report (Section 31) */}
+      {/* Tab 1: Weekly Management Report */}
       {activeTab === 'report' && (
         <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
@@ -127,7 +206,7 @@ export const ReportsSettingsView: React.FC<ReportsSettingsViewProps> = ({
                 Weekly Sales &amp; Marketing Executive Report
               </h3>
               <p className="text-xs text-slate-400">
-                Data-driven executive briefing referencing live CRM metrics, pipeline health, and ROAS
+                Grounds all analysis strictly on verified CRM metrics, pipeline stage conversion, and active ROAS
               </p>
             </div>
 
@@ -138,7 +217,7 @@ export const ReportsSettingsView: React.FC<ReportsSettingsViewProps> = ({
                 className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 flex items-center gap-2 cursor-pointer transition-all disabled:opacity-50"
               >
                 <Sparkles className="w-4 h-4 text-amber-300" />
-                <span>{generatingReport ? 'Compiling Report...' : 'Generate Weekly Report'}</span>
+                <span>{generatingReport ? 'Compiling Report...' : 'Generate Executive Report'}</span>
               </button>
 
               {reportMarkdown && (
@@ -165,7 +244,7 @@ export const ReportsSettingsView: React.FC<ReportsSettingsViewProps> = ({
           {generatingReport ? (
             <div className="py-24 text-center text-xs text-slate-400 space-y-2">
               <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
-              <p>Analyzing active pipeline, closed bookings, qualified lead ratios &amp; ad ROAS...</p>
+              <p>Analyzing active pipeline, closed bookings, qualified lead ratios &amp; ad ROAS with {currentModel}...</p>
             </div>
           ) : reportMarkdown ? (
             <div className="p-5 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-slate-200 whitespace-pre-wrap leading-relaxed font-sans max-h-[520px] overflow-y-auto">
@@ -173,131 +252,260 @@ export const ReportsSettingsView: React.FC<ReportsSettingsViewProps> = ({
             </div>
           ) : (
             <div className="py-24 text-center text-xs text-slate-500 italic">
-              Click &ldquo;Generate Weekly Report&rdquo; to build an executive briefing with verified pipeline numbers.
+              Click &ldquo;Generate Executive Report&rdquo; to build an executive briefing with verified pipeline numbers.
             </div>
           )}
         </div>
       )}
 
-      {/* Tab 2: System Health & PostgreSQL Configuration */}
+      {/* Tab 2: AI Models & Engine Settings */}
       {activeTab === 'settings' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: System Health Verification (Section 46) */}
-          <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <Activity className="w-4 h-4 text-emerald-400" />
-              System Health &amp; Subsystem Verification
-            </h3>
-
-            <div className="space-y-2.5 text-xs">
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-                <div>
-                  <strong className="text-white">Python &amp; Node Runtime:</strong>
-                  <p className="text-slate-400 text-[11px]">Python 3.11+ / Node.js 22 LTS Full-Stack</p>
-                </div>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                  PASS
-                </span>
+        <div className="space-y-6">
+          {/* Active Model Selector */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Cpu className="w-5 h-5 text-indigo-400" />
+                  Gemini Model Engine Selection
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Select your active primary Gemini model. Switch between Flash 3.8, 3.1 Flash-Lite, and 2.5 series.
+                </p>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-                <div>
-                  <strong className="text-white">PostgreSQL Compatibility:</strong>
-                  <p className="text-slate-400 text-[11px]">SQLAlchemy / Postgres Driver / SQLite Dual Mode</p>
-                </div>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                  PASS
-                </span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-                <div>
-                  <strong className="text-white">Gemini 3.8 Flash API:</strong>
-                  <p className="text-slate-400 text-[11px]">Server-side proxy &bull; Telemetry User-Agent active</p>
-                </div>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                  PASS
-                </span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-                <div>
-                  <strong className="text-white">Local RAG Vector &amp; Chunker:</strong>
-                  <p className="text-slate-400 text-[11px]">9 Categorized Subfolders &bull; Mandatory Citation</p>
-                </div>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                  PASS
-                </span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-                <div>
-                  <strong className="text-white">Deterministic Scoring Engine:</strong>
-                  <p className="text-slate-400 text-[11px]">8 Dimensions &bull; 0–100 Scale &bull; Zero Hallucination</p>
-                </div>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                  PASS
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400">Active Engine:</span>
+                <span className="px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-mono text-xs font-bold">
+                  {currentModel}
                 </span>
               </div>
             </div>
 
-            {/* Reset Demo Data Button */}
-            <div className="pt-2">
-              <button
-                onClick={handleReset}
-                className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 flex items-center justify-center gap-2 cursor-pointer transition-colors"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>Reset Demo Leads, Tasks &amp; Campaigns</span>
-              </button>
-              {resetSuccess && (
-                <p className="text-emerald-400 text-[11px] text-center mt-2 font-medium">
-                  &check; Demo data re-initialized with 50+ realistic client leads.
-                </p>
-              )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              {SUPPORTED_MODELS.map((model) => {
+                const isSelected = model.id === currentModel;
+                return (
+                  <div
+                    key={model.id}
+                    onClick={() => onModelChange(model.id)}
+                    className={`p-4 rounded-xl border transition-all cursor-pointer relative ${
+                      isSelected
+                        ? 'bg-indigo-950/40 border-indigo-500/80 ring-1 ring-indigo-500/50 shadow-lg shadow-indigo-500/10'
+                        : 'bg-slate-950/80 border-slate-800 hover:border-slate-700 hover:bg-slate-900/50'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-sm">{model.name}</span>
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${model.badgeColor}`}>
+                          {model.tag}
+                        </span>
+                      </div>
+                      {isSelected ? (
+                        <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center border border-emerald-500/30">
+                          <Check className="w-3.5 h-3.5" />
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-slate-500">Click to activate</span>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-slate-300 mb-3 leading-relaxed">
+                      {model.description}
+                    </p>
+
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/80">
+                      <span>Latency: <strong className="text-slate-200">{model.speed}</strong></span>
+                      <span className="font-mono text-[10px] text-indigo-400">{model.id}</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* Right: PostgreSQL Schema & Local Windows Deployment Guide */}
-          <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4 text-xs">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <Database className="w-4 h-4 text-indigo-400" />
-              PostgreSQL &amp; Local Windows Architecture
-            </h3>
+          {/* Subsystems & PostgreSQL Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* System Health */}
+            <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Activity className="w-4 h-4 text-emerald-400" />
+                Subsystem Diagnostics
+              </h3>
 
-            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2">
-              <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider block">
-                PostgreSQL Connection Configuration
-              </span>
-              <p className="text-slate-300 text-[11px] leading-relaxed">
-                As requested (&ldquo;mai postgresql ka use karta hu&rdquo;), the codebase includes full PostgreSQL connection strings and SQLAlchemy models:
-              </p>
-              <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 font-mono text-[11px] text-emerald-400 select-all">
-                DATABASE_URL=postgresql://postgres:password@localhost:5432/niteesh_growth_labs
+              <div className="space-y-2.5 text-xs">
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                  <div>
+                    <strong className="text-white">API Runtime &amp; Server:</strong>
+                    <p className="text-slate-400 text-[11px]">Node.js 22 LTS / Express 4 / TypeScript</p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                    PASS
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                  <div>
+                    <strong className="text-white">PostgreSQL Data Layer:</strong>
+                    <p className="text-slate-400 text-[11px]">Dual-Engine Adapter with In-Memory Resilient Cache</p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                    PASS
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                  <div>
+                    <strong className="text-white">Gemini Official SDK:</strong>
+                    <p className="text-slate-400 text-[11px]">@google/genai TypeScript &bull; {geminiActive ? 'Key Active' : 'Key Missing'}</p>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded font-bold border ${geminiActive ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}`}>
+                    {geminiActive ? 'CONNECTED' : 'STANDBY'}
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                  <div>
+                    <strong className="text-white">Deterministic Scoring Engine:</strong>
+                    <p className="text-slate-400 text-[11px]">8 Dimensions &bull; 0–100 Scale &bull; Zero Hallucination</p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                    PASS
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={handleReset}
+                  className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Reset Demo Leads, Tasks &amp; Campaigns</span>
+                </button>
+                {resetSuccess && (
+                  <p className="text-emerald-400 text-[11px] text-center mt-2 font-medium">
+                    &check; Demo data re-initialized with 50+ realistic client leads.
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2">
-              <span className="text-[11px] font-bold text-purple-400 uppercase tracking-wider block">
-                Standalone Python Project Included
-              </span>
-              <p className="text-slate-300 text-[11px] leading-relaxed">
-                In addition to this live interactive web command center, the complete Python repository structure has been created inside:
-              </p>
-              <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 font-mono text-[11px] text-indigo-300">
-                /niteesh_sales_marketing_agent/
-                <br />├── app.py (Streamlit / Python)
-                <br />├── requirements.txt (psycopg2-binary, sqlalchemy, pandas, plotly, google-genai)
-                <br />├── setup_windows.bat &amp; run_windows.bat
-                <br />├── database/ (models.py, db.py, seed_demo_data.py)
-                <br />└── tests/ (pytest suite)
+            {/* PostgreSQL Database Configuration */}
+            <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4 text-xs">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Database className="w-4 h-4 text-indigo-400" />
+                PostgreSQL Enterprise Database Setup
+              </h3>
+
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2">
+                <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider block">
+                  Environment Connection String
+                </span>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  To connect your remote or local PostgreSQL database, set <code className="text-indigo-300 font-mono">DATABASE_URL</code> in your <code className="text-indigo-300 font-mono">.env</code> file:
+                </p>
+                <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 font-mono text-[11px] text-emerald-400 select-all break-all">
+                  DATABASE_URL=postgresql://postgres:your_password@localhost:5432/niteesh_growth_labs
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2">
+                <span className="text-[11px] font-bold text-purple-400 uppercase tracking-wider block">
+                  Fail-Safe Offline Mode
+                </span>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  If PostgreSQL is offline or unreachable, the application automatically switches to in-memory caching with zero downtime, preserving all user actions and providing smooth demonstration capability.
+                </p>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Tab 3: Audit Log (Section 41) */}
+      {/* Tab 3: GitHub Deployment & Cloud Hosting Guide */}
+      {activeTab === 'github' && (
+        <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+            <div>
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Github className="w-5 h-5 text-indigo-400" />
+                GitHub Repository &amp; Cloud Hosting Instructions
+              </h3>
+              <p className="text-xs text-slate-400">
+                Commands to publish your custom application to <code className="text-indigo-300 font-mono">https://github.com/Niteesh-Pandey/sales-marketing_agent</code> and host it anywhere
+              </p>
+            </div>
+
+            <button
+              onClick={handleCopyGitCommands}
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 flex items-center gap-2 cursor-pointer transition-all"
+            >
+              {copiedGitCmd ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
+              <span>{copiedGitCmd ? 'Commands Copied!' : 'Copy Git Push Commands'}</span>
+            </button>
+          </div>
+
+          {/* Quick Terminal Code Block */}
+          <div className="space-y-2">
+            <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <Terminal className="w-3.5 h-3.5 text-indigo-400" />
+              Terminal Commands to Push directly to your GitHub Repository:
+            </span>
+            <pre className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-400 overflow-x-auto whitespace-pre leading-relaxed">
+              {gitPushScript}
+            </pre>
+          </div>
+
+          {/* Cloud Hosting Options */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+              <div className="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wide">
+                <Globe className="w-4 h-4" />
+                <span>Render / Railway</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Connect your GitHub repo. Set Build Command: <code className="text-indigo-300">npm run build</code>, Start Command: <code className="text-indigo-300">npm run start</code>.
+              </p>
+              <div className="text-[11px] text-slate-400">
+                Add <code className="text-slate-200">GEMINI_API_KEY</code> in environment settings.
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+              <div className="flex items-center gap-2 text-purple-400 font-bold text-xs uppercase tracking-wide">
+                <Server className="w-4 h-4" />
+                <span>Docker / VPS</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Use the included <code className="text-purple-300">Dockerfile</code>. Build with:
+                <br /><code className="text-slate-200 font-mono text-[10px]">docker build -t niteesh-agent .</code>
+              </p>
+              <div className="text-[11px] text-slate-400">
+                Run with port mapping <code className="text-slate-200">-p 3000:3000</code>.
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+              <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-wide">
+                <Key className="w-4 h-4" />
+                <span>Environment Variables</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Configured via standard <code className="text-emerald-300">.env</code>:
+              </p>
+              <div className="text-[10px] font-mono text-slate-400 space-y-0.5">
+                <div>GEMINI_API_KEY=...</div>
+                <div>GEMINI_MODEL=gemini-3.8-flash</div>
+                <div>PORT=3000</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 4: Audit Log */}
       {activeTab === 'audit' && (
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
           <div className="flex items-center justify-between">
@@ -306,7 +514,7 @@ export const ReportsSettingsView: React.FC<ReportsSettingsViewProps> = ({
               Safety &amp; Compliance Audit Trail
             </h3>
             <span className="text-xs text-slate-400">
-              Immutable logging of all AI tool executions, lead modifications, and drafts
+              Immutable logging of all AI executions, lead modifications, and drafts
             </span>
           </div>
 

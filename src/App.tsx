@@ -31,6 +31,7 @@ export default function App() {
   const [knowledgeDocs, setKnowledgeDocs] = useState<KnowledgeDocument[]>(INITIAL_KNOWLEDGE_DOCUMENTS);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(INITIAL_AUDIT_LOGS);
   const [geminiActive, setGeminiActive] = useState<boolean>(true);
+  const [currentModel, setCurrentModel] = useState<string>('gemini-3.8-flash');
 
   // Modals & Selection
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -40,6 +41,14 @@ export default function App() {
 
   // Fetch initial data from Express backend if running
   useEffect(() => {
+    fetch('/api/settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.settings?.primary_model) {
+          setCurrentModel(data.settings.primary_model);
+        }
+      })
+      .catch(() => {});
     fetch('/api/leads')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -234,12 +243,35 @@ export default function App() {
     setCurrentTab(tab);
   };
 
+  const handleModelChange = async (newModel: string) => {
+    setCurrentModel(newModel);
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ primary_model: newModel })
+      });
+      if (res.ok) {
+        // Refresh audit logs
+        const auditRes = await fetch('/api/audit-logs');
+        if (auditRes.ok) {
+          const logs = await auditRes.json();
+          if (Array.isArray(logs)) setAuditLogs(logs);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to change model:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
       {/* Top Header */}
       <Header
         onQuickAction={(tab) => setCurrentTab(tab)}
         geminiActive={geminiActive}
+        currentModel={currentModel}
+        onModelChange={handleModelChange}
       />
 
       <div className="flex-1 flex overflow-hidden">
@@ -339,6 +371,9 @@ export default function App() {
             <ReportsSettingsView
               auditLogs={auditLogs}
               onResetDemoData={handleResetDemoData}
+              currentModel={currentModel}
+              onModelChange={handleModelChange}
+              geminiActive={geminiActive}
             />
           )}
         </main>
