@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "niteesh-ai-sales-marketing-agent"
+version = "1.0.0"
+description = "Enterprise AI Sales & Marketing Agent with Deterministic Scoring & RERA Analytics"
+readme = "README.md"
+authors = [{ name = "Niteesh Pandey", email = "niteeshpandey9555@gmail.com" }]
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "google-genai>=2.4.0",
+    "sqlalchemy>=2.0.0",
+    "pydantic>=2.7.0",
+    "pandas>=2.2.0",
+    "numpy>=1.26.0",
+    "python-dotenv>=1.0.1"
+]
+
+[project.scripts]
+niteesh-ai = "python_engine.cli:main"

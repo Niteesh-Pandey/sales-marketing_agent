@@ -1,0 +1,22 @@
+# ==============================================================================
+# GitHub Linguist Configuration
+# Repository: https://github.com/Niteesh-Pandey/sales-marketing_agent
+# Ensures GitHub highlights Python as the primary language
+# ==============================================================================
+
+# Exclude generated/web bundle and TypeScript from language stats
+*.ts linguist-detectable=false
+*.tsx linguist-detectable=false
+*.css linguist-detectable=false
+*.json linguist-detectable=false
+*.html linguist-detectable=false
+src/** linguist-detectable=false
+dist/** linguist-vendored
+
+# Mark Python files as primary detectable language
+*.py linguist-detectable=true
+*.py linguist-language=Python
+python_engine/**/*.py linguist-detectable=true
+python_engine/**/*.py linguist-language=Python
+tests/**/*.py linguist-detectable=true
+tests/**/*.py linguist-language=Python
