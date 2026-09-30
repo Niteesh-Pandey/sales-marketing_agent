@@ -11,7 +11,9 @@ import {
   ChevronRight,
   ArrowUpDown,
   CheckCircle,
-  Eye
+  Eye,
+  PhoneCall,
+  MessageSquare
 } from 'lucide-react';
 import { Lead, LeadStage, LeadStatus } from '../types';
 
@@ -38,9 +40,47 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [minScore, setMinScore] = useState<number>(0);
   const [sortBy, setSortBy] = useState<'score' | 'budget' | 'date'>('score');
+  const [activePreset, setActivePreset] = useState<string>('all');
+
+  const applyPreset = (preset: string) => {
+    setActivePreset(preset);
+    if (preset === 'all') {
+      setStageFilter('ALL');
+      setCityFilter('ALL');
+      setStatusFilter('ALL');
+      setMinScore(0);
+    } else if (preset === 'hot') {
+      setStageFilter('ALL');
+      setCityFilter('ALL');
+      setStatusFilter('HOT');
+      setMinScore(75);
+    } else if (preset === 'mumbai') {
+      setCityFilter('Mumbai');
+      setStageFilter('ALL');
+      setStatusFilter('ALL');
+      setMinScore(0);
+    } else if (preset === 'thane') {
+      setCityFilter('Thane');
+      setStageFilter('ALL');
+      setStatusFilter('ALL');
+      setMinScore(0);
+    } else if (preset === 'pune') {
+      setCityFilter('Pune');
+      setStageFilter('ALL');
+      setStatusFilter('ALL');
+      setMinScore(0);
+    } else if (preset === 'hni') {
+      setStageFilter('ALL');
+      setCityFilter('ALL');
+      setStatusFilter('ALL');
+      setMinScore(0);
+      setSearchTerm('');
+    }
+  };
 
   const filteredLeads = leads
     .filter((lead) => {
+      if (activePreset === 'hni' && lead.budget < 15000000) return false;
       if (stageFilter !== 'ALL' && lead.stage !== stageFilter) return false;
       if (cityFilter !== 'ALL' && lead.city !== cityFilter) return false;
       if (statusFilter !== 'ALL' && lead.status !== statusFilter) return false;
@@ -155,6 +195,31 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
 
       {/* Filters Card */}
       <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+        {/* Quick Filter Presets */}
+        <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-slate-800/80">
+          <span className="text-[11px] font-semibold text-slate-400 mr-1">Quick Presets:</span>
+          {[
+            { id: 'all', label: 'All Leads', count: leads.length },
+            { id: 'hot', label: '🔥 Hot Deals (80+)', count: leads.filter((l) => l.status === 'HOT' || l.lead_score >= 80).length },
+            { id: 'mumbai', label: '📍 Mumbai Prime', count: leads.filter((l) => l.city === 'Mumbai').length },
+            { id: 'thane', label: '📍 Thane Select', count: leads.filter((l) => l.city === 'Thane').length },
+            { id: 'pune', label: '📍 Pune Investors', count: leads.filter((l) => l.city === 'Pune').length },
+            { id: 'hni', label: '💎 ₹1.5 Cr+ HNI', count: leads.filter((l) => l.budget >= 15000000).length },
+          ].map((p) => (
+            <button
+              key={p.id}
+              onClick={() => applyPreset(p.id)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                activePreset === p.id
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-800'
+              }`}
+            >
+              {p.label} <span className="opacity-60 text-[10px]">({p.count})</span>
+            </button>
+          ))}
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
           {/* Search */}
           <div className="relative md:col-span-2">
@@ -323,6 +388,22 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
                   {/* Actions */}
                   <td className="py-3 px-4 text-right">
                     <div className="flex items-center justify-end gap-1.5">
+                      <a
+                        href={`https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${lead.name}, Niteesh Pandey here from UrbanNest Properties regarding your inquiry for ${lead.product_interest}. Would today be a good time for a brief walkthrough?`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 rounded-lg bg-emerald-950/70 hover:bg-emerald-800/80 text-emerald-400 border border-emerald-700/60 transition-colors cursor-pointer"
+                        title="Chat on WhatsApp"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                      </a>
+                      <a
+                        href={`tel:${lead.phone}`}
+                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 transition-colors cursor-pointer"
+                        title="Call Client"
+                      >
+                        <PhoneCall className="w-3.5 h-3.5" />
+                      </a>
                       <button
                         onClick={() => onSelectLead(lead)}
                         className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"

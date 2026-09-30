@@ -11,6 +11,7 @@ import {
   Headphones,
   CalendarCheck,
   Settings,
+  Building2,
   ChevronRight
 } from 'lucide-react';
 
@@ -29,16 +30,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
-    { id: 'ai-assistant', label: 'AI Assistant', icon: Bot, badge: 'Agent' },
     { id: 'leads', label: 'Lead Management', icon: Users, badge: leadCount.toString() },
     { id: 'pipeline', label: 'Visual Pipeline', icon: Kanban, badge: 'Kanban' },
+    { id: 'inventory', label: 'Properties & Units', icon: Building2, badge: 'RERA' },
+    { id: 'ai-assistant', label: 'AI Copilot Agent', icon: Bot, badge: 'Gemini' },
     { id: 'sales-tools', label: 'Sales & Objections', icon: MailCheck, badge: 'Drafts' },
-    { id: 'marketing', label: 'Marketing & Copy', icon: Megaphone, badge: 'GenAI' },
-    { id: 'analytics', label: 'Analytics & Funnel', icon: BarChart3, badge: '11 KPIs' },
-    { id: 'knowledge', label: 'Knowledge Base', icon: BookOpen, badge: 'RAG' },
+    { id: 'marketing', label: 'Marketing & Copy', icon: Megaphone, badge: 'A/B' },
+    { id: 'analytics', label: 'Funnel & Analytics', icon: BarChart3, badge: '11 KPIs' },
     { id: 'meetings', label: 'Meeting Intel', icon: Headphones, badge: 'Audio/CRM' },
     { id: 'daily-plan', label: 'Day Plan & Tasks', icon: CalendarCheck, badge: taskCount.toString() },
-    { id: 'reports-settings', label: 'Reports & Settings', icon: Settings, badge: 'Postgres' },
+    { id: 'knowledge', label: 'Knowledge Base', icon: BookOpen, badge: 'RAG' },
+    { id: 'reports-settings', label: 'System & Hosting', icon: Settings, badge: 'Cloud' },
   ];
 
   return (

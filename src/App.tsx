@@ -16,6 +16,7 @@ import { AnalyticsView } from './components/AnalyticsView';
 import { KnowledgeBaseView } from './components/KnowledgeBaseView';
 import { MeetingIntelligenceView } from './components/MeetingIntelligenceView';
 import { DailyPlanView } from './components/DailyPlanView';
+import { InventoryView } from './components/InventoryView';
 import { ReportsSettingsView } from './components/ReportsSettingsView';
 import { LeadDetailModal } from './components/modals/LeadDetailModal';
 import { CreateLeadModal } from './components/modals/CreateLeadModal';
@@ -316,6 +317,10 @@ export default function App() {
               onUpdateLeadStage={handleUpdateLeadStage}
               onNavigateToSales={handleNavigateToSales}
             />
+          )}
+
+          {currentTab === 'inventory' && (
+            <InventoryView />
           )}
 
           {currentTab === 'sales-tools' && (
